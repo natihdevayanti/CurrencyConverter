@@ -1,12 +1,15 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Newtonsoft.Json;
 
 namespace CurrencyConverter
 {
@@ -15,6 +18,27 @@ namespace CurrencyConverter
         public Form1()
         {
             InitializeComponent();
+        }
+
+        private double getRate(string fromCurrency, string toCurrency)
+        {
+            var json = "";
+            string rate = "";
+            try
+            {
+                string url = string.Format("https://free.currconv.com/api/v7/convert?q={0}_{1}&compact=ultra&apiKey=0d77daddea2f9df55594", fromCurrency.ToUpper(), toCurrency.ToUpper());
+                string key = string.Format("{0}_{1}", fromCurrency.ToUpper(), toCurrency.ToUpper());
+
+                json = new WebClient().DownloadString(url);
+                dynamic stuff = JsonConvert.DeserializeObject(json);
+                rate = stuff[key];
+            }
+            catch
+            {
+                rate = "0";
+            }
+
+            return double.Parse(rate);
         }
 
         private void convertButton_Click(object sender, EventArgs e)
@@ -33,7 +57,8 @@ namespace CurrencyConverter
                     inputBoxLabel.Text = "IDR";
                     inputBoxLabel.ForeColor = Color.Black;
 
-                    double output = double.Parse(inputBox.Text) * 0.000069;
+                    double rate = getRate(inputBoxLabel.Text, usdRadioButton.Text);
+                    double output = double.Parse(inputBox.Text) * rate;
 
                     outputBox.Text = output.ToString();
                     outputBoxLabel.Text = usdRadioButton.Text;
@@ -55,7 +80,8 @@ namespace CurrencyConverter
                     inputBoxLabel.Text = "IDR";
                     inputBoxLabel.ForeColor = Color.Black;
 
-                    double output = double.Parse(inputBox.Text) * 0.000075;
+                    double rate = getRate(inputBoxLabel.Text, jpyRadioButton.Text);
+                    double output = double.Parse(inputBox.Text) * rate;
 
                     outputBox.Text = output.ToString();
                     outputBoxLabel.Text = jpyRadioButton.Text;
@@ -76,7 +102,8 @@ namespace CurrencyConverter
                     inputBoxLabel.Text = "IDR";
                     inputBoxLabel.ForeColor = Color.Black;
 
-                    double output = double.Parse(inputBox.Text) * 0.000058;
+                    double rate = getRate(inputBoxLabel.Text, eurRadioButton.Text);
+                    double output = double.Parse(inputBox.Text) * rate;
 
                     outputBox.Text = output.ToString();
                     outputBoxLabel.Text = eurRadioButton.Text;
